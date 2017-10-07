@@ -32,6 +32,7 @@ namespace miner_arduino2
             TimerCallback callback = new TimerCallback(Tick);
             Console.WriteLine("---------------");
             Console.WriteLine("By_deathcult456");
+            Console.WriteLine("BTC donation: 15WnvJt7GCasvWuntB6AJSwVfuG7p5r7Ev");
             Console.WriteLine("---------------");
             Console.WriteLine(" ");
             Console.WriteLine("Interval temps:{0}", interval_temps);
