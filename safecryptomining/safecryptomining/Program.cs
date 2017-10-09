@@ -52,47 +52,61 @@ namespace miner_arduino2
                 Thread.Sleep(interval_temps-1000);
             }
         }
-        static public void Tick(Object stateInfo)
+         static public void Tick(Object stateInfo)
         {
-           
-
-            WebClient client = new WebClient();
-
-            string nicehash_text = client.DownloadString(nicehash_dl); 
-            Console.WriteLine("Tick: {0},  Reseter: {1}, i={2}", DateTime.Now.ToString("h:mm:ss"),reseter,i);
-            if (nicehash_text.IndexOf(Worker_name) != -1)
+            try
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Reponse:");
-                Console.ResetColor();
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine(nicehash_text);
-                Console.WriteLine(" ");
+                WebClient client = new WebClient();
+                string nicehash_text = client.DownloadString(nicehash_dl);
+
+
+                Console.WriteLine("Tick: {0},  Reseter: {1}, i={2}", DateTime.Now.ToString("h:mm:ss"), reseter, i);
+                if (nicehash_text.IndexOf(Worker_name) != -1)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Reponse:");
+                    Console.ResetColor();
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine(nicehash_text);
+                    Console.WriteLine(" ");
+                    Console.ResetColor();
+                    i = 0;
+                    reseter++;
+                    if (reseter >= 20000) { reseter = 100; } // on evite de dépasser le int mais on garde un reseter superieur a 25(25x5second)
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Problem rig");
+                    i++;
+
+                    if (reseter >= 25 && i >= 10) //si reseter superieur a 20 pour être sure que le rig tourne deja depuis klk minute // si i superieur a 3 pour verrifier 3 probleme de rig
+                    {
+
+                        if (Utiliser_free_sms) { string SMS = client.DownloadString("https://smsapi.free-mobile.fr/sendmsg?user=" + free_user + "&pass=" + free_pass + "&msg=RIG%20probleme:%20" + Worker_name); }
+                        Console.WriteLine("Problem rig_SMS_send");
+                        i = 0;
+                        reseter = 0;
+                        if (Restart_miner) { System.Diagnostics.Process.Start("shutdown.exe", "-r -t 0"); }
+                    }
+
+                    Console.ResetColor();
+
+                }
+            }
+            catch
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("");
+                Console.WriteLine("ERROR :( (check internet connexion)");
+                Console.WriteLine("");
                 Console.ResetColor();
                 i = 0;
-                reseter++;
-                if (reseter>= 20000) { reseter = 100; } // on evite de dépasser le int mais on garde un reseter superieur a 25(25x5second)
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Problem rig");
-                i++;
-
-                if (reseter >= 25 && i >= 10) //si reseter superieur a 20 pour être sure que le rig tourne deja depuis klk minute // si i superieur a 3 pour verrifier 3 probleme de rig
-                {
-
-                    if (Utiliser_free_sms) { string SMS = client.DownloadString("https://smsapi.free-mobile.fr/sendmsg?user=" + free_user + "&pass=" + free_pass + "&msg=RIG%20probleme:%20" + Worker_name); }
-                    Console.WriteLine("Problem rig_SMS_send");
-                    i = 0;
-                    reseter = 0;
-                    if (Restart_miner) { System.Diagnostics.Process.Start("shutdown.exe", "-r -t 0"); }
-                }
-
-                Console.ResetColor();
-
+                reseter = 0;
             }
         }
+    
+        
     }
 }
  
