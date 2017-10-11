@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,12 +10,14 @@ using System.Configuration;
 
 namespace miner_arduino2
 {
-     
+
     class Program
     {
+        //pool
+        static string pool = ConfigurationManager.AppSettings["pool"];
         //miner
         static string Worker_name = ConfigurationManager.AppSettings["Worker_name"];
-        static string adresse_BTC = ConfigurationManager.AppSettings["adresse_BTC"];
+        static string Adresse_mining = ConfigurationManager.AppSettings["Adresse_mining"];
         static int interval_temps = int.Parse(ConfigurationManager.AppSettings["interval_temps"]);
         static bool Restart_miner = bool.Parse(ConfigurationManager.AppSettings["Restart_miner"]);
         //SMS
@@ -25,18 +27,23 @@ namespace miner_arduino2
         //---------------------------------
         static int i = 0;
         static int reseter = 0;
-        static string nicehash_dl = "https://api.nicehash.com/api?method=stats.provider.workers&addr=" + adresse_BTC;
+
+     
+
 
         static void Main(string[] args)
         {
+            
+
             TimerCallback callback = new TimerCallback(Tick);
-            Console.WriteLine("---------------");
+            Console.WriteLine("safecryptomining v1.02");
             Console.WriteLine("By_deathcult456");
             Console.WriteLine("BTC donation: 15WnvJt7GCasvWuntB6AJSwVfuG7p5r7Ev");
-            Console.WriteLine("---------------");
+            Console.WriteLine("--------------");
             Console.WriteLine(" ");
+            Console.WriteLine("POOL:{0}", pool);
             Console.WriteLine("Interval temps:{0}", interval_temps);
-            Console.WriteLine("Adresse BTC de minage:{0}", adresse_BTC);
+            Console.WriteLine("Adresse de minage:{0}", Adresse_mining);
             if (Restart_miner) { Console.WriteLine("Restart miner = true"); }
             if (Utiliser_free_sms) { Console.WriteLine("Utiliser_free_sms = true"); }
             Console.WriteLine(" ");
@@ -49,25 +56,34 @@ namespace miner_arduino2
             for (;;)
             {
                 // add a sleep for 4000 mSec to reduce CPU usage
-                Thread.Sleep(interval_temps-1000);
+                Thread.Sleep(interval_temps - 1000);
             }
         }
-         static public void Tick(Object stateInfo)
+        static public void Tick(Object stateInfo)
         {
             try
             {
+                string pool_text ="";
                 WebClient client = new WebClient();
-                string nicehash_text = client.DownloadString(nicehash_dl);
-
+                if (pool == "nicehash")
+                {
+                    string pool_dl = "https://api.nicehash.com/api?method=stats.provider.workers&addr=" + Adresse_mining;
+                    pool_text = client.DownloadString(pool_dl);
+                }
+                if (pool == "nanopool")
+                {
+                    string pool_dl = "https://api.nanopool.org/v1/eth/user/:" + Adresse_mining;
+                    pool_text = client.DownloadString(pool_dl);
+                }
 
                 Console.WriteLine("Tick: {0},  Reseter: {1}, i={2}", DateTime.Now.ToString("h:mm:ss"), reseter, i);
-                if (nicehash_text.IndexOf(Worker_name) != -1)
+                if (pool_text.IndexOf(Worker_name) != -1)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("Reponse:");
                     Console.ResetColor();
                     Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.WriteLine(nicehash_text);
+                    Console.WriteLine(pool_text);
                     Console.WriteLine(" ");
                     Console.ResetColor();
                     i = 0;
