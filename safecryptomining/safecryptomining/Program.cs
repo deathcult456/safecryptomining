@@ -36,9 +36,10 @@ namespace miner_arduino2
             
 
             TimerCallback callback = new TimerCallback(Tick);
-            Console.WriteLine("safecryptomining v1.02");
+            Console.WriteLine("safecryptomining v1.03");
             Console.WriteLine("By_deathcult456");
             Console.WriteLine("BTC donation: 15WnvJt7GCasvWuntB6AJSwVfuG7p5r7Ev");
+            Console.WriteLine("Ether donation: b6f7d015910004953799793fc512309f5fbc0803"); 
             Console.WriteLine("--------------");
             Console.WriteLine(" ");
             Console.WriteLine("POOL:{0}", pool);
@@ -73,6 +74,16 @@ namespace miner_arduino2
                 if (pool == "nanopool")
                 {
                     string pool_dl = "https://api.nanopool.org/v1/eth/user/:" + Adresse_mining;
+                    pool_text = client.DownloadString(pool_dl);
+                }
+                if (pool == "zpool" || pool=="Zpool" || pool=="zpool.ca")
+                {
+                    string pool_dl = "http://www.zpool.ca/api/walletEx?address=" + Adresse_mining;
+                    pool_text = client.DownloadString(pool_dl);
+                }
+                if (pool == "yiimp" || pool == "yiimp.eu" )
+                {
+                    string pool_dl = "http://api.yiimp.eu/api/wallet?address=" + Adresse_mining;
                     pool_text = client.DownloadString(pool_dl);
                 }
 
